@@ -1,14 +1,33 @@
-def draw():
-    pass
+import curses
+from curses.textpad import rectangle
+from .grid import Grid, GridDimensions, Vector2D
 
 
-def add_tile_left():
-    pass
+class TileLayer:
+    def __init__(self) -> None:
+        self.stdscr = curses.initscr()
+        self.gridDimensions: GridDimensions = GridDimensions(
+            width=curses.LINES, height=curses.COLS
+        )
+        self.layer: Grid = Grid(self.gridDimensions)
 
+    def addTile(
+        self, topLeftVector: Vector2D, bottomRightVector: Vector2D, zoneNumber=1
+    ):
+        tileDimensions = self.layer.addTiledZone(
+            topLeftVector, bottomRightVector, zoneNumber
+        )
 
-def add_tile_right():
-    pass
+        rectangle(
+            self.stdscr,
+            tileDimensions[0].x,
+            tileDimensions[0].y,
+            tileDimensions[1].x,
+            tileDimensions[1].x,
+        )
 
-
-if __name__ == "__main__":
-    pass
+    def eventloop(self):
+        self.stdscr.getch()
+        self.stdscr.endwin()
+        for i in self.layer.grid:
+            print(i)
