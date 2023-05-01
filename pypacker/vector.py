@@ -9,3 +9,6 @@ class Vector2D:
     def updateFromTuple(self, index: Tuple[int, int]):
         self.x = index[0]
         self.y = index[1]
+
+    def __str__(self) -> str:
+        return f"X: {self.x}, Y: {self.y}"
