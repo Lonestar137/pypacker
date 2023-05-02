@@ -4,10 +4,7 @@ from .dimensions import GridDimensions
 
 
 class Grid:
-    def __init__(
-        self,
-        gridDimensions: GridDimensions,
-    ) -> None:
+    def __init__(self, gridDimensions: GridDimensions) -> None:
         self.gridDimensions = gridDimensions
         self.grid = self.createBlankGridFromDimensions()
 
@@ -42,16 +39,38 @@ class Grid:
         minY = min(v.y for v in vectors)
         maxY = max(v.y for v in vectors)
 
-        validVectors: List[Tuple] = []
-        for y in range(maxY - minY + 1):
-            for x in range(maxX - minX + 1):
-                try:
-                    valueAtIndex = self.grid[topLeftVector.y + y][topLeftVector.x + x]
-                    currentVector = ((topLeftVector.y + y), (topLeftVector.x + x))
-                    if valueAtIndex == 0:
-                        self.grid[topLeftVector.y + y][topLeftVector.x + x] = zoneNumber
+        # newMinX = minX
+        # newMaxX = maxX
+        # newMinY = minY
+        # newMaxY = maxY
 
+        validVectors: List[Tuple] = []
+        for y in range(minY - 1, maxY + 2):
+            for x in range(minX - 1, maxY + 2):
+                try:
+                    valueAtIndex = self.grid[y][x]
+                    currentVector = (y, x)
+
+                    isInArea: bool = minX <= x <= maxX and minY <= y <= maxY
+
+                    if isInArea and valueAtIndex == 0:
                         validVectors.append(currentVector)
+                    elif valueAtIndex > 0:
+                        center_y = (minY + maxY) // 2
+                        center_x = (minX + maxX) // 2
+                        if y < center_y:
+                            minY -= 1
+                            maxY -= 1
+                        elif y > center_y:
+                            minY += 1
+                            maxY += 1
+
+                        if x < center_x:
+                            minX -= 1
+                            maxX -= 1
+                        elif x > center_x:
+                            minX += 1
+                            maxX += 1
 
                 except IndexError as e:
                     pass
@@ -63,6 +82,23 @@ class Grid:
         newMaxY = max(v[0] for v in validVectors)
         appliedTopLeftVector = Vector2D(newMinX, newMinY)
         appliedBottomRightVector = Vector2D(newMaxX, newMaxY)
+
+        for y in range(newMaxY - newMinY + 1):
+            for x in range(newMaxX - newMinX + 1):
+                try:
+                    valueAtIndex = self.grid[appliedTopLeftVector.y + y][
+                        appliedTopLeftVector.x + x
+                    ]
+                    currentVector = (
+                        (appliedTopLeftVector.y + y),
+                        (appliedTopLeftVector.x + x),
+                    )
+                    if valueAtIndex == 0:
+                        self.grid[appliedTopLeftVector.y + y][
+                            appliedTopLeftVector.x + x
+                        ] = zoneNumber
+                except IndexError as e:
+                    pass
 
         appliedVectors: Tuple[Vector2D, Vector2D] = (
             appliedTopLeftVector,
